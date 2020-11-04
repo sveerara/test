@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <style>
+html, body { margin:0; padding:0; font:16px/1.75 Verdana, Arial, Helvetica, sans-serif }
+.page-content { padding:1em; max-width:64em; margin:auto }
+
+.click-count { color:green; font-weight:bold }
+</style>
 <script>
   var i = 0;
 function clickCounter() {
@@ -19,6 +25,22 @@ function clickCounter() {
     document.getElementById("result").innerHTML = "Sorry, your browser does not support web storage...";
   }
 }
+  
+  var clicks = document.querySelectorAll('.click-trigger'); // IE8
+for(var i = 0; i < clicks.length; i++){
+	clicks[i].onclick = function(){
+		var id = this.getAttribute('data-click-id');
+		var post = 'id='+id; // post string
+		var req = new XMLHttpRequest();
+		req.open('POST', 'counter.php', true);
+		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		req.onreadystatechange = function(){
+			if (req.readyState != 4 || req.status != 200) return; 
+			document.getElementById(id).innerHTML = req.responseText;
+			};
+		req.send(post);
+		}
+	}
 </script>
 </head>
 <body>
@@ -28,5 +50,28 @@ function clickCounter() {
 <div id="result"></div>
 <p>Click the button to see the counter increase.</p>
 <p>Close the browser tab (or window), and try again, and the counter will continue to count (is not reset).</p>
+  
+  <?php 
+
+$clickcount = explode("\n", file_get_contents('counter.txt'));
+foreach($clickcount as $line){
+	$tmp = explode('||', $line);
+	$count[trim($tmp[0])] = trim($tmp[1]);
+	}
+
+?>
+
+<button class="click-trigger" data-click-id="click-001">Click Me</button> 
+Clicked <span id="click-001" class="click-count"><?php echo $count['click-001'];?></span> times.
+<br/><br/>
+
+<button class="click-trigger" data-click-id="click-002">Click Me</button> 
+Clicked <span id="click-002" class="click-count"><?php echo $count['click-002'];?></span> times.
+<br/><br/>
+
+<button class="click-trigger" data-click-id="click-003">Click Me</button> 
+Clicked <span id="click-003" class="click-count"><?php echo $count['click-003'];?></span> times.
+<br/><br/>
+  
 </body>
 </html>
